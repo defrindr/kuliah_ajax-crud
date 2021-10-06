@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Ajax</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container text-center">
+        <h1>Data Mahasiswa</h1>
+    </div>
+    <div class="container">
+        <form id="form" onsubmit="event.preventDefault()" action="POST">
+            <input type="hidden" name="id" style="margin-top:2rem" class="m-1 form-control">
+            <input type="text" name="nrp" placeholder="nrp" style="margin-top:2rem" class="m-1 form-control">
+            <input type="text" name="nama" placeholder="nama" style="margin-top:2rem" class="m-1 form-control">
+            <input type="text" name="prodi" placeholder="prodi" style="margin-top:2rem" class="m-1 form-control">
+            <button id="insert" class="btn btn-success" style="margin-top:2rem">Simpan</button>
+        </form>
+    </div>
+
+    <div class="container" style="margin-top:2rem">
+        <input type="text" name="search" onkeydown="search(event)" onkeyup="search(event)">
+        <table class="table table-hover table-stripped">
+            <thead>
+                <th>NRP</th>
+                <th>Nama</th>
+                <th>PRODI</th>
+                <th>AKSI</th>
+            </thead>
+            <tbody id="container-data"></tbody>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <script>
+        let container = $("#container-data");
+        let insert = $("#insert");
+        let form = $("#form");
+        // let formupdate= $("#formupdate");
+
+        $(document).ready(function () {
+            $.ajax({
+                "url": "server.php",
+                "method": "GET",
+                success: function (response) {
+                    console.log(response)
+                    container.html(response.html);
+                }
+            });
+
+            insertfunction();
+        });
+
+        function insertfunction() {
+            insert.on('click', () => {
+                let data = form.serialize();
+                $.ajax({
+                    "url": "server.php?action=insert",
+                    "method": "POST",
+                    "data": data,
+                    success: function (response) {
+                        // response = await response.json();
+                        container.html(response.html);
+                    }
+                });
+                form[0].reset();
+            });
+        }
+
+        function search(event) {
+            $.ajax({
+                "url": "server.php?action=search&search=" + event.target.value,
+                "method": "GET",
+                success: function (response) {
+                    container.html(response.html);
+                }
+            });
+        }
+
+        function update(id) {
+            $.ajax({
+                "url": "server.php?action=view&id=" + id,
+                "method": "GET",
+                success: function (response) {
+
+                    $("input[name=id]").val(response.data[0].id);
+                    $("input[name=nrp]").val(response.data[0].nrp);
+                    $("input[name=nama]").val(response.data[0].nama);
+                    $("input[name=prodi]").val(response.data[0].prodi);
+                }
+            });
+        }
+
+        function deletedata(id) {
+            $.ajax({
+                "url": "server.php?action=delete&id=" + id,
+                "method": "GET",
+                success: function (response) {
+                    container.html(response.html)
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>
